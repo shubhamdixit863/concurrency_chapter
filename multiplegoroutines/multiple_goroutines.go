@@ -48,4 +48,15 @@ func main() {
 	wg.Wait()
 	fmt.Println("main routine exited")
 
+	ch := make(chan int) // unbuffered channel
+
+	ch <- 1
+
+	value, ok := <-ch
+	fmt.Println(value, ok)
+	close(ch)
+
+	c, ok := <-ch
+	fmt.Println(c, ok)
+
 }
