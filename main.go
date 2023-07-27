@@ -2,60 +2,66 @@ package main
 
 import (
 	"fmt"
-	"sync"
 )
 
-func Data(ch chan int) {
+func BuubleSort(slc []int) {
 
-	fmt.Println("Sending started")
-	fmt.Println("Nap time over------------")
-	ch <- 1
-	fmt.Println("Sending done")
+	for i := 0; i < len(slc); i++ {
+		// inneer loop
 
-}
+		for j := 0; j < len(slc)-1; j++ {
+			if slc[j] > slc[j+1] {
+				// swap here
+				slc[j], slc[j+1] = slc[j+1], slc[j]
+			}
+		}
 
-type Person struct {
-	age     int
-	isVoter bool
-}
-
-func SendDer(ch chan<- *Person, wg *sync.WaitGroup) { // send only
-	g := &Person{
-		age:     10,
-		isVoter: true,
 	}
-	ch <- g
-
-	g.isVoter = true
-	g.age = 100
-	defer wg.Done()
-	close(ch)
-
 }
 
-func Receiver(ch <-chan *Person, wg *sync.WaitGroup) { //receive only channel
-	//v := <-ch
-	fmt.Println("Receiver Go routine---", <-ch)
-	defer wg.Done()
+func BuubleSortConcurrent(slc []int, ch chan int, exit chan struct{}) {
+
+	for i := 0; i < len(slc); i++ {
+
+		ch <- i
+	}
+
+	exit <- struct{}{}
 }
 
+func InnerLoop(slc []int) {
+	for j := 0; j < len(slc)-1; j++ {
+		if slc[j] > slc[j+1] {
+			// swap here
+			slc[j], slc[j+1] = slc[j+1], slc[j]
+		}
+	}
+
+}
 func main() {
-	ch := make(chan *Person)
 
-	var wg sync.WaitGroup
-	go Receiver(ch, &wg)
-	go SendDer(ch, &wg)
+	c := []int{34, 1, 23, 234, 0, 2, 99}
+	exit := make(chan struct{})
+	//BuubleSort(c)
 
-	wg.Add(2)
-	//time.Sleep(2 * time.Second)
+	buubleSortIndex := make(chan int)
 
-	wg.Wait()
+	go BuubleSortConcurrent(c, buubleSortIndex, exit)
 
+loop:
+	for {
+		select {
+		case <-buubleSortIndex:
+			InnerLoop(c)
+
+		case <-exit:
+			break loop
+
+		}
+
+	}
+
+	fmt.Println("Sorted array", c)
 }
 
-// You have to spawn 2 go routines
-// is send a struct over the channel
-// and print out the value of the struct in another routine
-// then exit the main routine
-
-// We can do buubble sort using channels ,select statement and go routines->
+// selection sort algorithm ---->
