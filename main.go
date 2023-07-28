@@ -5,61 +5,47 @@ import (
 	"sync"
 )
 
-var value int = 10
+func Even(ch chan int, wg *sync.WaitGroup, slc []int) {
 
-func main() {
-
-	var wg sync.WaitGroup
-	var mutex sync.Mutex
-
-	go func() {
-		defer wg.Done()
-		mutex.Lock()
-		for i := 0; i < 100000; i++ {
-			value++
+	for _, va := range slc {
+		if va%2 == 0 {
+			ch <- va
 		}
-		mutex.Unlock()
+	}
 
-	}()
+	wg.Done()
+	close(ch)
+}
+func Odd(ch chan int, wg *sync.WaitGroup, slc []int) {
 
-	go func() {
-		defer wg.Done()
-		mutex.Lock()
-		for i := 0; i < 100000; i++ {
-			value++
+	for _, va := range slc {
+		if va%2 != 0 {
+			ch <- va
 		}
+	}
 
-		mutex.Unlock()
-
-	}()
-
-	go func() {
-		defer wg.Done()
-		mutex.Lock()
-		for i := 0; i < 100000; i++ {
-			value--
-		}
-
-		mutex.Unlock()
-
-	}()
-
-	go func() {
-		defer wg.Done()
-		mutex.Lock()
-
-		for i := 0; i < 100000; i++ {
-			value--
-		}
-		mutex.Unlock()
-
-	}()
-
-	wg.Add(4)
-
-	wg.Wait()
-	fmt.Println(value)
+	wg.Done()
+	close(ch)
 
 }
 
-// selection sort algorithm ---->
+func main() {
+	d := []int{12, 7, 1, 3}
+	var even []int
+	var odd []int
+
+	var wg sync.WaitGroup
+	evenChannel := make(chan int)
+	oddChannel := make(chan int)
+	go Even(evenChannel, &wg, d)
+	go Odd(oddChannel, &wg, d)
+	wg.Add(2)
+
+	even = append(even, <-evenChannel)
+	odd = append(even, <-oddChannel)
+
+	wg.Wait()
+	fmt.Println(even)
+	fmt.Println(odd)
+
+}

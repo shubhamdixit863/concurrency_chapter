@@ -245,6 +245,140 @@ loop:
 
 // selection sort algorithm ---->
 
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var value int = 10
+
+func main() {
+
+	var wg sync.WaitGroup
+	var mutex sync.Mutex
+
+	go func() {
+		defer wg.Done()
+		mutex.Lock()
+		for i := 0; i < 100000; i++ {
+			value++
+		}
+		mutex.Unlock()
+
+	}()
+
+	go func() {
+		defer wg.Done()
+		mutex.Lock()
+		for i := 0; i < 100000; i++ {
+			value++
+		}
+
+		mutex.Unlock()
+
+	}()
+
+	go func() {
+		defer wg.Done()
+		mutex.Lock()
+		for i := 0; i < 100000; i++ {
+			value--
+		}
+
+		mutex.Unlock()
+
+	}()
+
+	go func() {
+		defer wg.Done()
+		mutex.Lock()
+
+		for i := 0; i < 100000; i++ {
+			value--
+		}
+		mutex.Unlock()
+
+	}()
+
+	wg.Add(4)
+
+	wg.Wait()
+	fmt.Println(value)
+
+}
+
+// selection sort algorithm ---->
+package main
+
+import (
+	"fmt"
+	"sync"
+	"sync/atomic"
+)
+
+var value int32 = 10
+
+func main() {
+	var wg sync.WaitGroup
+	//var mutex sync.Mutex
+
+	go func() {
+		defer wg.Done()
+
+		for i := 0; i < 100000; i++ {
+			atomic.AddInt32(&value, 1)
+		}
+
+	}()
+
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 100000; i++ {
+			atomic.AddInt32(&value, 1)
+		}
+
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		for i := 0; i < 100000; i++ {
+			atomic.AddInt32(&value, -1)
+		}
+
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		for i := 0; i < 100000; i++ {
+			atomic.AddInt32(&value, -1)
+		}
+
+	}()
+
+	wg.Add(4)
+
+	wg.Wait()
+	fmt.Println(value)
+
+	//slc:=[]int{12,7,1,3}
+	// [1,3,7] ,[12]
+
+}
+
+// selection sort algorithm ---->
+
+//  You have to build an event driven system using go routines
+// You will be given a slice of integers ,with even and odd numbers
+// you have to separate them using go routines
+// one go routine for even number
+// one go routine for odd number
+//they will send the value to main routine such that main routine can store in different slice
+
+
 
 
 */
