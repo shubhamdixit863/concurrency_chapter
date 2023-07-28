@@ -41,9 +41,13 @@ func main() {
 	go Odd(oddChannel, &wg, d)
 	wg.Add(2)
 
-	even = append(even, <-evenChannel)
-	odd = append(even, <-oddChannel)
+	for e := range evenChannel {
+		even = append(even, e)
+	}
 
+	for o := range oddChannel {
+		odd = append(odd, o)
+	}
 	wg.Wait()
 	fmt.Println(even)
 	fmt.Println(odd)
